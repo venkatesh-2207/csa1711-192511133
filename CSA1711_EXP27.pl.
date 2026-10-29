@@ -1,0 +1,50 @@
+
+% Experiment 27: Best First Search Algorithm
+
+% Graph connections
+edge(a, b).
+edge(a, c).
+edge(b, d).
+edge(b, e).
+edge(c, f).
+edge(c, g).
+
+% Heuristic values
+heuristic(a, 6).
+heuristic(b, 4).
+heuristic(c, 2).
+heuristic(d, 5).
+heuristic(e, 3).
+heuristic(f, 1).
+heuristic(g, 0).
+
+% Best First Search
+best_first(Goal, [H-Path | _], Result) :-
+    Path = [Goal | _],
+    !,
+    reverse(Path, Result).
+
+best_first(Goal, [_-Path | Frontier], Result) :-
+    Path = [Current | _],
+    findall(H-[Next | Path],
+        (edge(Current, Next),
+         \+ member(Next, Path),
+         heuristic(Next, H)),
+        Children),
+    append(Frontier, Children, NewFrontier),
+    keysort(NewFrontier, SortedFrontier),
+    best_first(Goal, SortedFrontier, Result).
+
+main :-
+    write('Best First Search Algorithm'), nl,
+    heuristic(a, H),
+    ( best_first(g, [H-[a]], Path) ->
+        write('Start Node: a'), nl,
+        write('Goal Node: g'), nl,
+        write('Path: '),
+        write(Path), nl
+    ;
+        write('No path found.'), nl
+    ).
+
+:- initialization(main, main).
