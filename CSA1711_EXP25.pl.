@@ -1,0 +1,46 @@
+
+% Experiment 25: Monkey Banana Problem
+
+% State: state(MonkeyPosition, MonkeyStatus, BoxPosition, BananaStatus)
+% MonkeyStatus: onfloor or onbox
+% BananaStatus: hasbanana or hasnotbanana
+
+move(state(middle, onbox, middle, hasnotbanana),
+     grasp,
+     state(middle, onbox, middle, hasbanana)).
+
+move(state(P, onfloor, P, B),
+     climb,
+     state(P, onbox, P, B)).
+
+move(state(P1, onfloor, Bx, B),
+     walk(P1, P2),
+     state(P2, onfloor, Bx, B)) :-
+    P1 \= P2.
+
+move(state(P1, onfloor, P1, B),
+     push(P1, P2),
+     state(P2, onfloor, P2, B)) :-
+    P1 \= P2.
+
+solve(state(_, _, _, hasbanana), []).
+solve(State, [Action | Rest]) :-
+    move(State, Action, NextState),
+    solve(NextState, Rest).
+
+main :-
+    InitialState = state(left, onfloor, middle, hasnotbanana),
+    write('Monkey Banana Problem'), nl,
+    write('Initial State: '), write(InitialState), nl,
+    (   solve(InitialState, Plan)
+    ->  write('Solution Plan:'), nl,
+        print_plan(Plan)
+    ;   write('No solution found.'), nl
+    ).
+
+print_plan([]).
+print_plan([Action | Rest]) :-
+    write(Action), nl,
+    print_plan(Rest).
+
+:- initialization(main, main).
